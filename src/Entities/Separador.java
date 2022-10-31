@@ -2,18 +2,17 @@ package Entities;
 
 public class Separador extends Funcionario {
     private int numeroDeColetas = 0;
+    private int produtosSeparados;
 
     public Separador(String nome){
         super(nome);
     }
 
     public boolean executaFuncao(){
-        var pedido = this.getPedidoAtual();
-
-        if (pedido.etapaAprovada())
+        if (this.getPedidoAtual().etapaAprovada())
             return true;
         
-        pedido.incrementaProdutosSeparados();
+        this.produtosSeparados++;
         return false;
     }
 
@@ -23,5 +22,14 @@ public class Separador extends Funcionario {
 
     public void incrementaNumeroDeColetas(){
         this.numeroDeColetas++;
+    }
+
+    public int getProdutosSeparados(){
+        return this.produtosSeparados;
+    }
+
+    public void incrementaProdutosSeparados(){
+        if ((this.getPedidoAtual().getNumProdutos() - this.produtosSeparados) != 0)
+            this.produtosSeparados++;
     }
 }

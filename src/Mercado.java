@@ -1,8 +1,12 @@
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.InputMismatchException;
 import java.util.Queue;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import Entities.*;
 
@@ -34,7 +38,7 @@ public class Mercado {
             do {
                 Scanner sc = new Scanner(System.in);
 
-                System.out.print("\nMENU DO MERCADO:\n[1] Receber pedido.\n[2] Ver andamento dos pedidos.\n[3] Cancelar pedido.\n[4] Proximo turno.\n[0] Sair.\n\nEscolha uma das opções a cima: ");
+                System.out.print("\nMENU DO MERCADO:\n[1] Receber pedido (Inicia automaticamente um novo turno).\n[2] Ver andamento dos pedidos.\n[3] Cancelar pedido.\n[4] Proximo turno.\n[0] Sair.\n\nEscolha uma das opções a cima: ");
                 opcao = sc.nextInt();
                 
                 sc.close();
@@ -42,21 +46,18 @@ public class Mercado {
                 switch(opcao){
                     case 1:
                         this.receberNovoPedido();
-                        // this.proximoTurno();
+                        this.proximoTurno();
                         break;
                     case 2:
                         //TODO: Refazer andamento, formatar de um jeito mais bonito kkkkk
                         this.verAndamento();
-                        // this.proximoTurno();
                         break;
                     case 3:
                         //TODO
                         //this.cancelarUmPedido();
-                        // this.proximoTurno();
                         break;
                     case 4:
-                        //TODO: Pode deixar pra mim esse
-                        // this.proximoTurno();
+                        this.proximoTurno();
                     case 0:
                         break;
                     default:
@@ -95,5 +96,60 @@ public class Mercado {
         this.entregadores.stream().forEach(x -> System.out.println("    Nome: " + x.getNome() + ", Entregas: " + x.getEntregas()));
         System.out.println("\nSeparadores:");
         this.separadores.stream().forEach(x -> System.out.println("    Nome: " + x.getNome() + ", Produtos separados: " + x.getNumeroDeColetas()));
+    }
+
+    private void proximoTurno(){
+        List<Separador> separadoresDisponiveis = separadores.stream().filter(x -> !x.isOcupado()).collect(Collectors.toList());
+        List<Separador> separadoresOcupados = separadores.stream().filter(x -> x.isOcupado()).collect(Collectors.toList());
+
+        List<Entregador> entregadoresDisponiveis = entregadores.stream().filter(x -> !x.isOcupado()).collect(Collectors.toList());
+        List<Entregador> entregadoresOcupados = entregadores.stream().filter(x -> x.isOcupado()).collect(Collectors.toList());
+
+        List<Pedido> novosPedidos = pedidosParaColeta.stream().filter(x -> x.getFuncionarioResponsavel() == null).collect(Collectors.toList());
+        List<Pedido> novasEntregas = pedidosParaEntrega.stream().filter(x -> x.getFuncionarioResponsavel() == null).collect(Collectors.toList());
+        int count = 0;
+
+        for (var obj: separadoresOcupados){
+            if (obj.executaFuncao()){
+                pedidosParaEntrega.add(obj.getPedidoAtual());
+                pedidosParaColeta.remove(obj.getPedidoAtual());
+                obj.setPedido(null);
+                obj.setOcupado(false);
+            }
+        }
+
+        for (var obj: separadoresDisponiveis){
+            if (novosPedidos.size() > 0){
+                novosPedidos.get(count).setFuncionarioResponsavel(obj);
+                obj.setPedido(novosPedidos.get(count));
+                obj.setOcupado(true);
+
+                novosPedidos.remove(count);
+                separadoresDisponiveis.remove(obj);
+                count++;
+            }
+        }
+
+        for (var obj: entregadoresOcupados){
+            if (obj.executaFuncao()){
+                pedidosFinalizados.add(obj.getPedidoAtual());
+                pedidosParaEntrega.remove(obj.getPedidoAtual());
+                obj.setPedido(null);
+                obj.setOcupado(false);
+            }
+        }
+        
+        count = 0;
+        for (var obj: entregadoresDisponiveis){
+            if (novasEntregas.size() > 0){
+                novasEntregas.get(count).setFuncionarioResponsavel(obj);
+                obj.setPedido(novosPedidos.get(count));
+                obj.setOcupado(true);
+    
+                novasEntregas.remove(count);
+                entregadoresDisponiveis.remove(obj);
+                count++;
+            }
+        }
     }
 }

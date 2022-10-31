@@ -19,7 +19,7 @@ public class Funcionario {
         return this.pedidoAtual;
     }
 
-    public void setDisponibilidade(boolean ocupado){
+    public void setOcupado(boolean ocupado){
         this.ocupado = ocupado;
     }
 

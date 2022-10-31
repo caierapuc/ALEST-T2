@@ -4,7 +4,6 @@ public class Pedido {
     private static int globalId = 1;
     private final int id;
     private int numProdutos;
-    private int produtosSeparados;
     private Etapa etapa;
     private Funcionario funcionarioResponsavel;
 
@@ -13,6 +12,7 @@ public class Pedido {
         ++globalId;
         this.numProdutos = produtos.split(",").length;
         this.etapa = Etapa.SEPARACAO;
+        this.funcionarioResponsavel = null;
     }
 
     public Funcionario getFuncionarioResponsavel(){
@@ -25,15 +25,6 @@ public class Pedido {
 
     public int getNumProdutos(){
         return this.numProdutos;
-    }
-
-    public int getProdutosSeparados(){
-        return this.produtosSeparados;
-    }
-
-    public void incrementaProdutosSeparados(){
-        if ((this.numProdutos - this.produtosSeparados) != 0)
-            this.produtosSeparados++;
     }
 
     public Etapa getEtapa(){
@@ -49,10 +40,26 @@ public class Pedido {
     }
 
     public boolean etapaAprovada(){
-        if (this.numProdutos == this.produtosSeparados){
-            this.etapa = Etapa.ENTREGA;
-            return true;
+        if (this.etapa == Etapa.SEPARACAO && this.funcionarioResponsavel instanceof Separador){
+            Separador func = (Separador)getFuncionarioResponsavel();
+            
+            if (this.numProdutos == func.getProdutosSeparados()){
+                this.etapa = Etapa.ENTREGA;
+                return true;
+            }
+            return false;
         }
+        else if (this.etapa == Etapa.SEPARACAO && this.funcionarioResponsavel instanceof Entregador){
+            Entregador func = (Entregador)getFuncionarioResponsavel();
+
+            if (func.getRodadasParaEntrega() == 0){
+                this.etapa = Etapa.FINALIZADO;
+                return true;
+            }
+            return false;
+        }
+        else if (etapa == Etapa.FINALIZADO)
+            return true;
         return false;
     }
 }
