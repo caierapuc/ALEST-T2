@@ -3,16 +3,22 @@ package Entities;
 public class Pedido {
     private static int globalId = 1;
     private final int id;
+    private String nome;
     private int numProdutos;
     private Etapa etapa;
     private Funcionario funcionarioResponsavel;
 
-    public Pedido(String produtos){
+    public Pedido(String produtos, String nome){
         this.id = globalId;
         ++globalId;
         this.numProdutos = produtos.split(",").length;
         this.etapa = Etapa.SEPARACAO;
         this.funcionarioResponsavel = null;
+        this.nome = nome;
+    }
+
+    public String getNome(){
+        return this.nome;
     }
 
     public Funcionario getFuncionarioResponsavel(){

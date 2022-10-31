@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.InputMismatchException;
 import java.util.Queue;
 import java.util.LinkedList;
@@ -49,7 +48,6 @@ public class Mercado {
                         this.proximoTurno();
                         break;
                     case 2:
-                        //TODO: Refazer andamento, formatar de um jeito mais bonito kkkkk
                         this.verAndamento();
                         break;
                     case 3:
@@ -76,6 +74,8 @@ public class Mercado {
     }
 
     private void receberNovoPedido(){
+        System.out.print("Digite o nome do cliente: ");
+        String nomeCliente = sc.nextLine();
         System.out.println("Digite a lista de produtos, separados por uma vírgula (,):");
         String novoPedido = sc.nextLine();
         novoPedido += "a";
@@ -83,7 +83,7 @@ public class Mercado {
         if (novoPedido.length() <= 0)
             System.out.println("Nenhum produto escolhido, seguindo para o próximo turno");
         else
-            this.pedidosParaColeta.add(new Pedido(novoPedido));
+            this.pedidosParaColeta.add(new Pedido(novoPedido, nomeCliente));
     }
 
     private void verAndamento(){
@@ -106,6 +106,7 @@ public class Mercado {
         
         for (var obj: separadoresDisponiveis){
             if ((novosPedidos.size() - count) > 0){
+                obj.zeraProdutosSeparados();
                 novosPedidos.get(count).setFuncionarioResponsavel(obj);
                 obj.setPedido(novosPedidos.get(count));
                 obj.setOcupado(true);
@@ -154,6 +155,36 @@ public class Mercado {
     private void cancelarUmPedido(){
         tentativasDeCancelamento++;
 
+        List<Pedido> pedidosElegiveis = pedidosParaColeta.stream().collect(Collectors.toList());
+        pedidosElegiveis.addAll(pedidosParaEntrega.stream().filter(x -> x.getFuncionarioResponsavel() == null).collect(Collectors.toList()));
+
+        int count = 1;
+        System.out.println("\nEscolha um pedido elegível para cancelamento:");
         
+        for (var obj: pedidosElegiveis){
+            System.out.printf("[%d] - %s.\n", count, obj.getNome());
+            count++;
+        }
+        System.out.print("[0] - Desistir do cancelamento.\nEscolha: ");
+
+        int item = (sc.nextInt() - 1);
+
+        if (item == -1)
+            return;
+        
+        if (pedidosElegiveis.stream().anyMatch(x -> x.getId() == item)){
+            Pedido pedido = pedidosElegiveis.get(item);
+            
+            if (pedidosParaColeta.stream().anyMatch(x -> x.getId() == item))
+                pedidosParaColeta.remove(pedido);
+            else
+                pedidosParaEntrega.remove(pedido);
+
+            pedido.getFuncionarioResponsavel().setOcupado(false);
+            pedido.getFuncionarioResponsavel().setPedido(null);
+            pedido.setFuncionarioResponsavel(null);
+
+            pedidosCancelados.add(pedido);
+        }
     }
 }
