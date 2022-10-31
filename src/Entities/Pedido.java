@@ -49,7 +49,7 @@ public class Pedido {
             }
             return false;
         }
-        else if (this.etapa == Etapa.SEPARACAO && this.funcionarioResponsavel instanceof Entregador){
+        else if (this.etapa == Etapa.ENTREGA && this.funcionarioResponsavel instanceof Entregador){
             Entregador func = (Entregador)getFuncionarioResponsavel();
 
             if (func.getRodadasParaEntrega() == 0){

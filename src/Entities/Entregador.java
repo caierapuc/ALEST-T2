@@ -12,10 +12,6 @@ public class Entregador extends Funcionario {
         return this.entregas;
     }
 
-    public void incrementaNumeroDeColetas(){
-        this.entregas++;
-    }
-
     public int getRodadasParaEntrega(){
         return this.rodadasParaEntraga;
     }
@@ -24,12 +20,14 @@ public class Entregador extends Funcionario {
         do{
             this.rodadasParaEntraga = (int)Math.floor(Math.random() * 10);
         }
-        while (this.rodadasParaEntraga > 8 && this.rodadasParaEntraga < 4);
+        while (this.rodadasParaEntraga > 8 || this.rodadasParaEntraga < 4);
     }
 
     public boolean executaFuncao(){
-        if (getPedidoAtual().etapaAprovada())
+        if (getPedidoAtual().etapaAprovada()){
+            entregas++;
             return true;
+        }
         
         rodadasParaEntraga--;
         return false;

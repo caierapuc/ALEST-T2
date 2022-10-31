@@ -2,7 +2,7 @@ package Entities;
 
 public class Separador extends Funcionario {
     private int numeroDeColetas = 0;
-    private int produtosSeparados;
+    private int produtosSeparados = 0;;
 
     public Separador(String nome){
         super(nome);
@@ -13,6 +13,7 @@ public class Separador extends Funcionario {
             return true;
         
         this.produtosSeparados++;
+        this.numeroDeColetas++;
         return false;
     }
 
@@ -26,6 +27,10 @@ public class Separador extends Funcionario {
 
     public int getProdutosSeparados(){
         return this.produtosSeparados;
+    }
+
+    public void zeraProdutosSeparados(){
+        this.produtosSeparados = 0;
     }
 
     public void incrementaProdutosSeparados(){
